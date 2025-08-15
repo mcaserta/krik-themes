@@ -9,6 +9,6 @@
     "index": "node scripts/capture_previews.mjs && bash scripts/generate_index.sh"
   },
   "dependencies": {
-    "puppeteer": "^23.7.0"
+    "puppeteer": "^24.9.0"
   }
 }
