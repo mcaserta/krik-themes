@@ -21,7 +21,7 @@ while IFS= read -r theme; do
   echo "==> Building theme: $theme"
 
   # Build the site for this theme
-  (cd "$DEMO_DIR" && "$KK_BIN" --theme "${KRIK_SRC}/themes/$theme")
+  (cd "$DEMO_DIR" && "$KK_BIN" --theme "../../${KRIK_SRC}/themes/$theme")
 
   # Publish the built output under _site/<theme>/
   mkdir -p "$OUT_DIR/$theme"
