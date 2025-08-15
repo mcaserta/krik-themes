@@ -1,0 +1,85 @@
+name: Build and deploy Krik themes
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # weekly Monday 06:00 UTC
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Clone Krik source
+        run: |
+          git clone --depth=1 https://github.com/mcaserta/krik krik-src
+
+      - name: Build kk
+        working-directory: krik-src
+        run: |
+          cargo build --release
+          echo "KK_BIN=$PWD/target/release/kk" >> $GITHUB_ENV
+
+      - name: Enumerate themes
+        run: |
+          ls -1 krik-src/themes | sed '/^\./d' > .themes.txt
+          echo "Found themes:" && cat .themes.txt
+
+      - name: Build all themes
+        env:
+          KK_BIN: ${{ env.KK_BIN }}
+        run: |
+          bash scripts/build_all.sh .themes.txt krik-src "$KK_BIN"
+
+      - name: Generate index
+        run: |
+          bash scripts/generate_index.sh _site .themes.txt
+
+      - name: Add CNAME and disable Jekyll
+        run: |
+          echo "themes.krik.mirkocaserta.com" > _site/CNAME
+          touch _site/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
