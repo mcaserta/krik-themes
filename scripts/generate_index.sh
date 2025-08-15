@@ -50,7 +50,7 @@ for theme in "${themes[@]}"; do
   if [[ -f "$OUT_DIR/_previews/$theme.jpg" ]]; then
     cat <<HTML
   <div class="card">
-    <a class="thumb" href="./$theme/">
+    <a class="thumb" href="./$theme/" target="_blank">
       <img src="./_previews/$theme.jpg" alt="$theme preview" loading="lazy" />
     </a>
     <div><a href="./$theme/">$theme</a></div>
@@ -59,7 +59,7 @@ HTML
   else
     cat <<HTML
   <div class="card">
-    <a class="thumb" href="./$theme/">Preview unavailable</a>
+    <a class="thumb" href="./$theme/" target="blank">Preview unavailable</a>
     <div><a href="./$theme/">$theme</a></div>
   </div>
 HTML
