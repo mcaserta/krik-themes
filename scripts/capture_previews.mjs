@@ -166,8 +166,14 @@ async function main() {
   const { server, port } = await startStaticServer(opts.root, opts.preferredPort);
   const baseUrl = `http://127.0.0.1:${port}`;
 
+  const isCi = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  const launchArgs = [];
+  if (isCi) {
+    launchArgs.push('--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage');
+  }
   const browser = await puppeteer.launch({
     headless: true,
+    args: launchArgs,
     defaultViewport: { width: opts.viewportWidth, height: opts.viewportHeight },
   });
 
