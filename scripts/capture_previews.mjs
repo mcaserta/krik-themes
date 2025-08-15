@@ -184,7 +184,7 @@ async function main() {
       try {
         await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
         if (opts.delayMs > 0) {
-          await page.waitForTimeout(opts.delayMs);
+          await new Promise((resolve) => setTimeout(resolve, opts.delayMs));
         }
         const outputPath = path.join(opts.outDir, `${theme}.jpg`);
         await page.screenshot({ path: outputPath, type: 'jpeg', quality: opts.jpegQuality, fullPage: false });
