@@ -47,14 +47,23 @@ else
 fi
 
 for theme in "${themes[@]}"; do
-  cat <<HTML
+  if [[ -f "$OUT_DIR/_previews/$theme.jpg" ]]; then
+    cat <<HTML
   <div class="card">
     <a class="thumb" href="./$theme/">
-      <img src="./_previews/$theme.jpg" alt="$theme preview" loading="lazy" onerror="this.style.display='none'; this.parentElement.textContent='Preview unavailable'" />
+      <img src="./_previews/$theme.jpg" alt="$theme preview" loading="lazy" />
     </a>
     <div><a href="./$theme/">$theme</a></div>
   </div>
 HTML
+  else
+    cat <<HTML
+  <div class="card">
+    <a class="thumb" href="./$theme/">Preview unavailable</a>
+    <div><a href="./$theme/">$theme</a></div>
+  </div>
+HTML
+  fi
 done
 
 cat <<'HTML'
