@@ -1,0 +1,14 @@
+{
+  "name": "krik-themes-tooling",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Tooling to build index with Puppeteer previews",
+  "scripts": {
+    "previews": "node scripts/capture_previews.mjs",
+    "index": "node scripts/capture_previews.mjs && bash scripts/generate_index.sh"
+  },
+  "dependencies": {
+    "puppeteer": "^23.7.0"
+  }
+}

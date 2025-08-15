@@ -21,22 +21,41 @@ cat <<'HTML'
   .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 1rem; }
   .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; background: Canvas; color: CanvasText; }
   .card a { text-decoration: none; color: LinkText; font-weight: 600; }
-  .thumb { width: 100%; height: 140px; background: #f4f4f4; border-radius: 6px; display:flex; align-items:center; justify-content:center; color:#888; margin-bottom: .75rem; }
+  .thumb { width: 100%; height: 160px; background: #f4f4f4; border-radius: 6px; display:block; overflow:hidden; margin-bottom: .75rem; border: 1px solid #e5e5e5; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display:block; }
 </style>
 <h1>Krik Theme Demos</h1>
 <div class="grid">
 HTML
 
-while IFS= read -r theme; do
-  [[ -z "$theme" ]] && continue
+# Build a list of themes either from THEMES_FILE or by scanning OUT_DIR
+themes=()
+if [[ -f "$THEMES_FILE" ]]; then
+  while IFS= read -r theme; do
+    [[ -z "$theme" ]] && continue
+    themes+=("$theme")
+  done < "$THEMES_FILE"
+else
+  # scan directories under OUT_DIR that contain index.html, excluding ones starting with underscore
+  while IFS= read -r entry; do
+    name="$(basename "$entry")"
+    [[ "$name" == _* ]] && continue
+    if [[ -f "$OUT_DIR/$name/index.html" ]]; then
+      themes+=("$name")
+    fi
+  done < <(find "$OUT_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null || true)
+fi
+
+for theme in "${themes[@]}"; do
   cat <<HTML
   <div class="card">
-    <div class="thumb">Preview</div>
+    <a class="thumb" href="./$theme/">
+      <img src="./_previews/$theme.jpg" alt="$theme preview" loading="lazy" onerror="this.style.display='none'; this.parentElement.textContent='Preview unavailable'" />
+    </a>
     <div><a href="./$theme/">$theme</a></div>
   </div>
 HTML
-
-done < "$THEMES_FILE"
+done
 
 cat <<'HTML'
 </div>
