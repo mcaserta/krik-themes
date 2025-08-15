@@ -66,6 +66,28 @@ jobs:
         run: |
           bash scripts/build_all.sh .themes.txt krik-src "$KK_BIN"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Cache Puppeteer browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: ${{ runner.os }}-puppeteer-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-puppeteer-
+
+      - name: Install tooling
+        run: |
+          npm install
+
+      - name: Generate previews
+        run: |
+          node scripts/capture_previews.mjs --root _site --themes .themes.txt --width 1200 --height 800 --quality 80 --delay 300
+
       - name: Generate index
         run: |
           bash scripts/generate_index.sh _site .themes.txt
